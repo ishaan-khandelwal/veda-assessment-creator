@@ -72,7 +72,7 @@ export async function initRedisAndQueue() {
       
       // Create BullMQ Queue
       assessmentQueue = new Queue("assessment-generation", {
-        connection: redisConnection!
+        connection: redisConnection! as any
       });
       resolve();
     }).catch((err) => {

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/veda-assessment
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - ./backend:/usr/src/app
+
+  frontend:
+    image: node:18
+    working_dir: /usr/src/app
+    volumes:
+      - ./frontend:/usr/src/app
+    command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

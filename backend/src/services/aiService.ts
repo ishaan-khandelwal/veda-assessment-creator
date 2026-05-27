@@ -55,6 +55,9 @@ interface Response {
       text: string;
       difficulty: "Easy" | "Moderate" | "Hard";
       marks: number;
+      choices?: string[]; // for MCQs (optional)
+      answer?: string; // correct option text (optional)
+      explanation?: string; // brief answer explanation (optional)
     }>;
   }>;
 }
@@ -247,12 +250,46 @@ function generateMockQuestions(params: {
       // Select question text
       const list = topicBank[difficulty.toLowerCase() as "easy" | "moderate" | "hard"];
       const questionText = list[i % list.length];
-      
-      currentSectionQuestions.push({
-        text: `Q${qIndex}. ${questionText}`,
-        difficulty,
-        marks
-      });
+
+      // If this section requests MCQs, generate choices and answer
+      const lcType = type.toLowerCase();
+      if (lcType.includes("mcq") || lcType.includes("choice")) {
+        // Build 4 options by sampling from the topic bank across difficulties
+        const optionPool = [
+          ...topicBank.easy,
+          ...topicBank.moderate,
+          ...topicBank.hard
+        ];
+        // Ensure uniqueness
+        const options = new Set<string>();
+        options.add(questionText);
+        let idx = 0;
+        while (options.size < 4 && idx < optionPool.length) {
+          options.add(optionPool[(i + idx) % optionPool.length]);
+          idx++;
+        }
+        const choices = Array.from(options).slice(0, 4);
+        // Shuffle choices
+        for (let s = choices.length - 1; s > 0; s--) {
+          const r = Math.floor(Math.random() * (s + 1));
+          [choices[s], choices[r]] = [choices[r], choices[s]];
+        }
+        const correctAnswer = choices.find((c) => c === questionText) || choices[0];
+        currentSectionQuestions.push({
+          text: `Q${qIndex}. ${questionText}`,
+          difficulty,
+          marks,
+          choices,
+          answer: correctAnswer,
+          explanation: `Brief answer: ${correctAnswer}`
+        });
+      } else {
+        currentSectionQuestions.push({
+          text: `Q${qIndex}. ${questionText}`,
+          difficulty,
+          marks
+        });
+      }
 
       questionsCreated++;
       marksAssigned += marks;

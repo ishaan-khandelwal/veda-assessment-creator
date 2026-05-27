@@ -1,10 +1,15 @@
 import { create } from "zustand";
-import { io, Socket } from "socket.io-client";
+import { connect } from "socket.io-client";
+
+type SocketType = ReturnType<typeof connect>;
 
 export interface IQuestion {
   text: string;
   difficulty: "Easy" | "Moderate" | "Hard";
   marks: number;
+  choices?: string[];
+  answer?: string;
+  explanation?: string;
 }
 
 export interface ISection {
@@ -42,7 +47,7 @@ interface AssessmentState {
   progress: IGenerationProgress | null;
   isLoading: boolean;
   error: string | null;
-  socket: Socket | null;
+  socket: SocketType | null;
   
   fetchAssessments: () => Promise<void>;
   fetchAssessmentById: (id: string) => Promise<IAssessment | null>;
@@ -63,6 +68,10 @@ interface AssessmentState {
 
 const API_BASE = "http://localhost:5000/api";
 
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   assessments: [],
   currentAssessment: null,
@@ -78,8 +87,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       if (!res.ok) throw new Error("Failed to load assessments");
       const data = await res.json();
       set({ assessments: data, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err: unknown) {
+      set({ error: errorMessage(err, "Failed to load assessments"), isLoading: false });
     }
   },
 
@@ -91,8 +100,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       const data = await res.json();
       set({ currentAssessment: data, isLoading: false });
       return data;
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err: unknown) {
+      set({ error: errorMessage(err, "Failed to load assessment details"), isLoading: false });
       return null;
     }
   },
@@ -112,8 +121,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       const result = await res.json();
       set({ isLoading: false });
       return result.assessmentId;
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err: unknown) {
+      set({ error: errorMessage(err, "Failed to create assessment"), isLoading: false });
       return null;
     }
   },
@@ -145,8 +154,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
         }
         return {};
       });
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: errorMessage(err, "Failed to trigger regeneration") });
     }
   },
 
@@ -154,7 +163,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     // Clean up existing socket
     get().disconnectWebSocket();
 
-    const socket = io("http://localhost:5000");
+    const socket = connect("http://localhost:5000");
 
     socket.on("connect", () => {
       console.log("🟢 Connected to backend WebSocket server");

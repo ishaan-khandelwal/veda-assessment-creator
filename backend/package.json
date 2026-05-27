@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
   },
   "dependencies": {
-    "@google/genai": "^0.1.1",
+    "@google/genai": "^2.6.0",
     "bullmq": "^5.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

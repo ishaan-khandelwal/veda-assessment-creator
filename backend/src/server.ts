@@ -3,8 +3,8 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
-import { connectDB } from "./config/db";
-import { initRedisAndQueue, addJobToQueue } from "./queues/queue";
+import { connectDB, isDbConnected } from "./config/db";
+import { initRedisAndQueue, addJobToQueue, isRedisActive } from "./queues/queue";
 import { initWorker, setProgressEmitter } from "./workers/generatorWorker";
 import {
   createAssessment,
@@ -166,7 +166,7 @@ app.get("/api/health", (req, res) => {
     status: "healthy",
     timestamp: new Date(),
     environment: {
-      dbConnected: connectDB ? true : false, // soft reference
+      dbConnected: isDbConnected(),
       redisActive: isRedisActive()
     }
   });

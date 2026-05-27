@@ -90,7 +90,7 @@ export function initWorker() {
         await processGenerationJob(job);
       },
       {
-        connection: connection!,
+        connection: connection! as any,
         concurrency: 2
       }
     );
