@@ -118,6 +118,24 @@ The app automatically detects unavailable services and falls back:
 
 This means **the project runs out of the box with zero configuration**.
 
+### Deploy to Render + Vercel
+
+1. Push this repository to GitHub.
+2. On Render, connect the repo and use `render.yaml` at the root to create two services:
+    - `veda-assessment-backend` (Node web service)
+    - `veda-assessment-frontend` (Node web service for Next.js)
+3. Set Render environment variables for the backend service:
+    - `MONGODB_URI` (optional)
+    - `REDIS_HOST` / `REDIS_PORT` (optional)
+    - `GEMINI_API_KEY` (optional)
+4. Set Render environment variables for the frontend service:
+    - `NEXT_PUBLIC_API_BASE=https://<your-backend>.onrender.com/api`
+    - `NEXT_PUBLIC_WS_BASE=https://<your-backend>.onrender.com`
+5. Alternatively, deploy just the frontend on Vercel from the `frontend/` folder and configure Vercel env vars:
+    - `NEXT_PUBLIC_API_BASE=https://<your-backend>.onrender.com/api`
+    - `NEXT_PUBLIC_WS_BASE=https://<your-backend>.onrender.com`
+6. If you deploy frontend to Vercel, make sure the backend URL points to the Render backend service.
+
 ### Docker (recommended)
 
 You can run everything with Docker Compose (MongoDB, Redis, backend, frontend):

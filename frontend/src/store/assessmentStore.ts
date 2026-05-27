@@ -3,6 +3,9 @@ import { connect } from "socket.io-client";
 
 type SocketType = ReturnType<typeof connect>;
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const WS_BASE = process.env.NEXT_PUBLIC_WS_BASE || "http://localhost:5000";
+
 export interface IQuestion {
   text: string;
   difficulty: "Easy" | "Moderate" | "Hard";
@@ -64,11 +67,9 @@ interface AssessmentState {
   regenerateAssessment: (id: string) => Promise<void>;
   connectWebSocket: (assessmentId: string) => void;
   disconnectWebSocket: () => void;
-}
+  }
 
-const API_BASE = "http://localhost:5000/api";
-
-function errorMessage(error: unknown, fallback: string) {
+  function errorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
@@ -163,7 +164,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     // Clean up existing socket
     get().disconnectWebSocket();
 
-    const socket = connect("http://localhost:5000");
+    const socket = connect(WS_BASE);
 
     socket.on("connect", () => {
       console.log("🟢 Connected to backend WebSocket server");
