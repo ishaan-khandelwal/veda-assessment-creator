@@ -6,17 +6,6 @@ services:
     branch: main
     buildCommand: cd backend && npm ci && npm run build
     startCommand: cd backend && npm run start
-    envVars:
-      - key: PORT
-        value: "5000"
-      - key: MONGODB_URI
-        sync: false
-      - key: REDIS_HOST
-        sync: false
-      - key: REDIS_PORT
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
 
   - type: web
     name: veda-assessment-frontend
@@ -24,7 +13,7 @@ services:
     plan: free
     branch: main
     buildCommand: cd frontend && npm ci && npm run build
-    startCommand: cd frontend && npm run start
+    startCommand: cd frontend && npm run start -- -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_BASE
         value: "https://veda-assessment-backend.onrender.com/api"
