@@ -6,6 +6,8 @@ type SocketType = ReturnType<typeof connect>;
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 const WS_BASE = process.env.NEXT_PUBLIC_WS_BASE || "http://localhost:5000";
 
+export const configuredApiBase = API_BASE;
+
 export interface IQuestion {
   text: string;
   difficulty: "Easy" | "Moderate" | "Hard";

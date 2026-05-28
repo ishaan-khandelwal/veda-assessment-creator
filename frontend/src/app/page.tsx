@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useAssessmentStore, IAssessment } from "@/store/assessmentStore";
+import { configuredApiBase, useAssessmentStore, IAssessment } from "@/store/assessmentStore";
 import {
   Bell,
   BookOpen,
@@ -241,7 +241,7 @@ export default function DashboardPage() {
 
         {error && (
           <div className="notice error">
-            Failed to load assignments. Make sure the backend server is running on port 5000.
+            Failed to load assignments. Backend is not reachable at {configuredApiBase}.
           </div>
         )}
 
